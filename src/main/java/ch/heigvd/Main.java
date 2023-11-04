@@ -1,7 +1,15 @@
 package ch.heigvd;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-public class Main {
+@Command(name = "DirectChat", subcommands = {ServerCommands.class, ClientCommands.class})
+public class Main implements Runnable {
+
+    public void run() {
+        System.out.println("Please specify a subcommand: server or client.");
+    }
+
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        CommandLine.run(new Main(), args);
     }
 }
