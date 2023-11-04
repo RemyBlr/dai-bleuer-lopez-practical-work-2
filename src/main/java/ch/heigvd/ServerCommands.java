@@ -12,7 +12,7 @@ public class ServerCommands implements Runnable {
     }
 
     public void run() {
-        System.out.println("Server");
+        System.out.println("Server with port : " + port);
     }
 
 }

@@ -15,6 +15,6 @@ public class ClientCommands implements Runnable {
     }
 
     public void run() {
-        System.out.println("Client");
+        System.out.println("Client with port :" + serverPort);
     }
 }
