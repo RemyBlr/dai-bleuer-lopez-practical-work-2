@@ -1,21 +1,41 @@
 package ch.heigvd;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
+import picocli.CommandLine.*;
+import java.net.*;
+import java.io.*;
 
 @Command(name = "server", mixinStandardHelpOptions = true, version = "DirectChat 1.0")
 public class ServerCommands implements Runnable {
-    @CommandLine.Option(names = {"-p", "--port"}, description = "Server port")
-    private int port = 12345;
+    private ServerSocket serverSocket;
 
-    @CommandLine.Option(names = {"-t", "--threads"}, description = "Number of threads")
+
+    @Option(names = {"-p", "--port"}, description = "port")
+    private int port = 1234;
+
+    //nécessaire?  on peut juste ouvrir un thread à chaque fois que le client
+    // se connecte
+    @Option(names = {"-t", "--threads"}, description = "Number of threads")
     private int threads = 10;
 
-    public static void main(String[] args) {
-        CommandLine.run(new ServerCommands(), args);
+    @Override
+    public void run() {
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        while(true){
+            System.out.println("Server waiting for connection...");
+
+            try {
+                Socket socket = serverSocket.accept();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
-    public void run() {
-        System.out.println("Server with port : " + port + " and " + threads + " threads");
-    }
+
 
 }
