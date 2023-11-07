@@ -20,6 +20,7 @@ public class ClientCommands implements Runnable {
     public void run() {
 
         System.out.println("Attempting connection to server...");
+
         try {
             Socket socket = new Socket(serverAddress,serverPort);
         } catch (IOException e) {
@@ -27,6 +28,5 @@ public class ClientCommands implements Runnable {
         }
 
         new ClientConnected(socket);
-
     }
 }
