@@ -18,21 +18,7 @@ public class ServerCommands implements Runnable {
 
     @Override
     public void run() {
-        try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        while(true){
-            System.out.println("Server waiting for connection...");
-
-            try {
-                Socket socket = serverSocket.accept();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        new ServerConnected(port);
 
     }
 

@@ -8,10 +8,10 @@ import java.net.*;
 public class ClientCommands implements Runnable {
     private Socket socket;
     @CommandLine.Option(names = {"-p", "--port"}, description = "Server port")
-    private int serverPort = 12345;
+    private int serverPort = 1234;
 
     @CommandLine.Option(names = {"-s", "--server"}, description = "Server address")
-    private String serverAddress = "localhost";
+    private String serverAddress = "127.0.0.1";
 
     public static void main(String[] args) {
         CommandLine.run(new ClientCommands(), args);
@@ -23,10 +23,15 @@ public class ClientCommands implements Runnable {
 
         try {
             Socket socket = new Socket(serverAddress,serverPort);
-        } catch (IOException e) {
+            System.out.println("socked created");
+            ClientConnected clientConnected = new ClientConnected(socket);
+
+            Thread thread = new Thread(clientConnected);
+            thread.start();
+        }catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        new ClientConnected(socket);
+
     }
 }
