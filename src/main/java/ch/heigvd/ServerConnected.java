@@ -1,22 +1,17 @@
 package ch.heigvd;
 import java.io.*;
 import java.net.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ServerConnected {
-    private ServerSocket serverSocket=null;
-
-    //Messages from clients
-    private InputStream inputStream;
-    private DataInputStream dataInputStream;
-
-    //Messages to clients
-    private OutputStream outputStream;
-    private DataOutputStream dataOutputStream;
+    private ServerSocket serverSocket;
+    private static List<ClientHandler> clientHandlers = new ArrayList<>();
 
     public ServerConnected(int port){
         try {
             serverSocket = new ServerSocket(port);
-            run();
+            //run();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -25,19 +20,24 @@ public class ServerConnected {
     public void run() {
         while(true){
             System.out.println("Server waiting for connection...");
-            Socket clientSocket = null;
+            //Socket clientSocket = null;
             try {
-                clientSocket = serverSocket.accept();
+                Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected on port "+clientSocket.getPort()+ " and address "+clientSocket.getInetAddress());
-
-
+                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                clientHandlers.add(clientHandler);
+                clientHandler.start();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-
-
         }
+    }
 
+    public static List<ClientHandler> getClientHandlers() {
+        return clientHandlers;
+    }
+
+    public static void removeClientHandler(ClientHandler clientHandler) {
+        clientHandlers.remove(clientHandler);
     }
 }

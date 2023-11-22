@@ -22,12 +22,12 @@ public class ClientCommands implements Runnable {
         System.out.println("Attempting connection to server...");
 
         try {
-            Socket socket = new Socket(serverAddress,serverPort);
+            socket = new Socket(serverAddress,serverPort);
             System.out.println("socked created");
             ClientConnected clientConnected = new ClientConnected(socket);
-
-            Thread thread = new Thread(clientConnected);
-            thread.start();
+            clientConnected.start();
+            //Thread thread = new Thread(clientConnected);
+            //thread.start();
         }catch (IOException e) {
             throw new RuntimeException(e);
         }
