@@ -3,6 +3,12 @@ import java.net.*;
 import java.io.*;
 import java.util.Scanner;
 
+/*
+* Handling interaction with the server from the client side
+* Inputs and outputs for a connected client
+* Send and receive messages
+* List and send direct messages
+*/
 public class ClientConnected extends Thread{
     private Socket socket;
     private InputStream inputStream;
@@ -15,7 +21,7 @@ public class ClientConnected extends Thread{
 
     ClientConnected(Socket socket){
         this.socket = socket;
-        System.out.println("constructor");
+        //System.out.println("constructor");
         //start();
     }
 
@@ -38,7 +44,7 @@ public class ClientConnected extends Thread{
             String name = scanner.nextLine();
             dataOutputStream.writeUTF(name);
 
-            System.out.println("Server message : "+dataInputStream.readUTF());
+            System.out.println("Server message : " + dataInputStream.readUTF());
 
             Thread readingThread = new Thread(this::readServerMessages);
 
@@ -59,6 +65,10 @@ public class ClientConnected extends Thread{
                         socket.close();
                         break;
                     }
+                    else if(message.equals("-l")){
+                        listConnectedUsers();
+                        break;
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -71,11 +81,19 @@ public class ClientConnected extends Thread{
     private void readServerMessages(){
         try{
             while(true){
+                //msg from clientConnected
                 String message = dataInputStream.readUTF();
-                System.out.println("Server message : " + message);
+                System.out.println(message);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void listConnectedUsers() {
+        System.out.println("Connected Users:");
+        for (String username : ServerConnected.getConnectedUsers().keySet()) {
+            System.out.println(username);
         }
     }
 }

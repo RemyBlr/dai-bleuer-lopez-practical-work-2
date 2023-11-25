@@ -23,7 +23,7 @@ public class ClientCommands implements Runnable {
 
         try {
             socket = new Socket(serverAddress,serverPort);
-            System.out.println("socked created");
+            //System.out.println("socked created");
             ClientConnected clientConnected = new ClientConnected(socket);
             clientConnected.start();
             //Thread thread = new Thread(clientConnected);
