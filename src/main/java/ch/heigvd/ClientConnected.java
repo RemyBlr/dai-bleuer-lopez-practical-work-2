@@ -1,15 +1,17 @@
 package ch.heigvd;
+
 import java.net.*;
 import java.io.*;
+import java.util.Map;
 import java.util.Scanner;
 
 /*
-* Handling interaction with the server from the client side
-* Inputs and outputs for a connected client
-* Send and receive messages
-* List and send direct messages
-*/
-public class ClientConnected extends Thread{
+ * Handling interaction with the server from the client side
+ * Inputs and outputs for a connected client
+ * Send and receive messages
+ * List and send direct messages
+ */
+public class ClientConnected extends Thread {
     private Socket socket;
     private InputStream inputStream;
     private DataInputStream dataInputStream;
@@ -19,14 +21,12 @@ public class ClientConnected extends Thread{
 
     private Scanner scanner;
 
-    ClientConnected(Socket socket){
+    ClientConnected(Socket socket) {
         this.socket = socket;
-        //System.out.println("constructor");
-        //start();
     }
 
     @Override
-    public void run(){
+    public void run() {
         try {
             System.out.println("------ DirectChat 1.0 ------");
             System.out.println("----------------------------");
@@ -50,27 +50,25 @@ public class ClientConnected extends Thread{
 
             readingThread.start();
 
-            System.out.println("Write your message and send it to the others! Send -q to" +
-                    " close the connection\n");
+            System.out.println(
+                    "Write your message and send it to the others! Send -q to" +
+                            " close the connection\n");
 
-            while(true){
+            while (true) {
                 try {
                     String message = scanner.nextLine();
                     dataOutputStream.writeUTF(message);
 
-                    if(message.equals("-q")){
+                    if (message.equals("-q")) {
                         System.out.println("Bye byee :3\n");
                         dataInputStream.close();
                         dataOutputStream.close();
                         socket.close();
                         break;
                     }
-                    else if(message.equals("-l")){
-                        listConnectedUsers();
-                        break;
-                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
+
                 }
             }
         } catch (IOException e) {
@@ -78,22 +76,19 @@ public class ClientConnected extends Thread{
         }
     }
 
-    private void readServerMessages(){
-        try{
-            while(true){
-                //msg from clientConnected
+    private void readServerMessages() {
+        try {
+            while (!socket.isInputShutdown()) {
                 String message = dataInputStream.readUTF();
                 System.out.println(message);
             }
+        } catch (SocketException e) {
+
+            System.out.println("You have been disconnected from the server " +
+                                       "successfully.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void listConnectedUsers() {
-        System.out.println("Connected Users:");
-        for (String username : ServerConnected.getConnectedUsers().keySet()) {
-            System.out.println(username);
-        }
-    }
 }

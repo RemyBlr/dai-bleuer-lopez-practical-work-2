@@ -1,5 +1,7 @@
 package ch.heigvd;
+
 import picocli.CommandLine.*;
+
 import java.net.*;
 import java.io.*;
 
@@ -15,7 +17,6 @@ public class ServerCommands implements Runnable {
         ServerConnected serverConnected = new ServerConnected(port);
         serverConnected.run();
     }
-
 
 
 }
