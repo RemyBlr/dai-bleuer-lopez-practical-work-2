@@ -119,7 +119,7 @@ public class ClientHandler extends Thread {
 
             //Don't include the sender in the list
             if (Objects.equals(user, username))
-                userListMessage.append("(you)");
+                continue;
             userListMessage.append(user).append(", ");
 
         }

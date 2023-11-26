@@ -44,15 +44,17 @@ public class ClientConnected extends Thread {
             String name = scanner.nextLine();
             dataOutputStream.writeUTF(name);
 
-            System.out.println("Server message : " + dataInputStream.readUTF());
+            System.out.println("Server message : " + dataInputStream.readUTF() + "\n");
 
             Thread readingThread = new Thread(this::readServerMessages);
 
             readingThread.start();
 
-            System.out.println(
-                    "Write your message and send it to the others! Send -q to" +
-                            " close the connection\n");
+            System.out.println("Write your message and send it to the others!");
+            System.out.println("\"-l\"  : List the connected users.");
+            System.out.println("\"-dm\" : Send a direct message. " +
+                                       "Example: -dm username message");
+            System.out.println("\"-q\"  : Close the connection.\n");
 
             while (true) {
                 try {
