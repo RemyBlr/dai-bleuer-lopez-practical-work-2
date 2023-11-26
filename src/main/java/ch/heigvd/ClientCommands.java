@@ -1,6 +1,8 @@
 package ch.heigvd;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+
 import java.io.*;
 import java.net.*;
 
@@ -22,13 +24,10 @@ public class ClientCommands implements Runnable {
         System.out.println("Attempting connection to server...");
 
         try {
-            Socket socket = new Socket(serverAddress,serverPort);
-            System.out.println("socked created");
+            socket = new Socket(serverAddress, serverPort);
             ClientConnected clientConnected = new ClientConnected(socket);
-
-            Thread thread = new Thread(clientConnected);
-            thread.start();
-        }catch (IOException e) {
+            clientConnected.start();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

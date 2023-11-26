@@ -1,9 +1,17 @@
 package ch.heigvd;
+
 import java.net.*;
 import java.io.*;
+import java.util.Map;
 import java.util.Scanner;
 
-public class ClientConnected extends Thread{
+/*
+ * Handling interaction with the server from the client side
+ * Inputs and outputs for a connected client
+ * Send and receive messages
+ * List and send direct messages
+ */
+public class ClientConnected extends Thread {
     private Socket socket;
     private InputStream inputStream;
     private DataInputStream dataInputStream;
@@ -13,78 +21,76 @@ public class ClientConnected extends Thread{
 
     private Scanner scanner;
 
-    ClientConnected(Socket socket){
-        this.socket=socket;
-        System.out.println("constructor");
-        start();
+    ClientConnected(Socket socket) {
+        this.socket = socket;
     }
 
     @Override
-    public void run(){
+    public void run() {
         try {
+            System.out.println("------ DirectChat 1.0 ------");
+            System.out.println("----------------------------");
 
             // Flux d'entrée depuis le serveur
-            InputStream inputStream = socket.getInputStream();
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
 
             // Flux de sortie vers le serveur
-            OutputStream outputStream = socket.getOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            outputStream = socket.getOutputStream();
+            dataOutputStream = new DataOutputStream(outputStream);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println("------ DirectChat 1.0 ------");
-        System.out.println("----------------------------");
-
-
-        try {
             scanner = new Scanner(System.in);
             System.out.println("\nEnter your name: ");
             String name = scanner.nextLine();
             dataOutputStream.writeUTF(name);
 
-            System.out.println("Server message : "+dataInputStream.readUTF());
+            System.out.println("Server message : " + dataInputStream.readUTF() + "\n");
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Thread reading_thread = new Thread(this::readServerMessages);
+            Thread readingThread = new Thread(this::readServerMessages);
 
-        reading_thread.start();
+            readingThread.start();
 
-        System.out.println("Write your message and send it to the others! Send -q to" +
-                                   " close the connection\n");
+            System.out.println("Write your message and send it to the others!");
+            System.out.println("\"-l\"  : List the connected users.");
+            System.out.println("\"-dm\" : Send a direct message. " +
+                                       "Example: -dm username message");
+            System.out.println("\"-q\"  : Close the connection.\n");
 
-        while(true){
-            try {
-                String message = scanner.nextLine();
-                dataOutputStream.writeUTF(message);
+            while (true) {
+                try {
+                    String message = scanner.nextLine();
+                    dataOutputStream.writeUTF(message);
 
-                if(message.equals("-q")){
+                    if (message.equals("-q")) {
+                        System.out.println("Bye byee :3\n");
+                        dataInputStream.close();
+                        dataOutputStream.close();
+                        socket.close();
+                        break;
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
 
-                    System.out.println("Bye byee :3\n");
-                    dataInputStream.close();
-                    dataOutputStream.close();
-                    socket.close();
-
-                    break;
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private void readServerMessages(){
-        try{
-            while(true){
-                String message = dataInputStream.readUTF();
-                System.out.println("Server message : "+message);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    private void readServerMessages() {
+        try {
+            while (!socket.isInputShutdown()) {
+                String message = dataInputStream.readUTF();
+                System.out.println(message);
+            }
+        } catch (SocketException e) {
+
+            System.out.println("You have been disconnected from the server " +
+                                       "successfully.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
