@@ -1,8 +1,8 @@
 package ch.heigvd;
 
-import java.net.*;
 import java.io.*;
-import java.util.Map;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.Scanner;
 
 /*
@@ -12,55 +12,65 @@ import java.util.Scanner;
  * List and send direct messages
  */
 public class ClientConnected extends Thread {
-    private Socket socket;
-    private InputStream inputStream;
+
+    // Socket for the client
+    private final Socket socket;
+
+    // Input stream
     private DataInputStream dataInputStream;
 
-    private OutputStream outputStream;
-    private DataOutputStream dataOutputStream;
-
-    private Scanner scanner;
-
+    /**
+     * Constructor
+     * @param socket socket for the client
+     */
     ClientConnected(Socket socket) {
         this.socket = socket;
     }
 
+    /**
+     * Run the client
+     */
     @Override
     public void run() {
         try {
             System.out.println("------ DirectChat 1.0 ------");
             System.out.println("----------------------------");
 
-            // Flux d'entrée depuis le serveur
-            inputStream = socket.getInputStream();
+            // Input stream from the server
+            InputStream inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
 
-            // Flux de sortie vers le serveur
-            outputStream = socket.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
+            // Output stream to the server
+            OutputStream outputStream = socket.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
 
-            scanner = new Scanner(System.in);
+            // Get the username from the client
+            Scanner scanner = new Scanner(System.in);
             System.out.println("\nEnter your name: ");
             String name = scanner.nextLine();
             dataOutputStream.writeUTF(name);
 
-            System.out.println("Server message : " + dataInputStream.readUTF() + "\n");
+            System.out.println(
+                    "Server message : " + dataInputStream.readUTF() + "\n");
 
+            // Start the thread to read messages from the server
             Thread readingThread = new Thread(this::readServerMessages);
 
+            // Starts the thread
             readingThread.start();
 
-            System.out.println("Write your message and send it to the others!");
-            System.out.println("\"-l\"  : List the connected users.");
-            System.out.println("\"-dm\" : Send a direct message. " +
-                                       "Example: -dm username message");
-            System.out.println("\"-q\"  : Close the connection.\n");
+
+            System.out.println("Write your message and send it to the " +
+                                       "others!\n\"-l\"  : List the connected" +
+                                       " users.\n\"-dm\" : Send a direct message. " +
+                                       "Example: -dm username message\n\"-q\"  : Close the connection.\n");
 
             while (true) {
                 try {
                     String message = scanner.nextLine();
                     dataOutputStream.writeUTF(message);
 
+                    // If the user wants to quit
                     if (message.equals("-q")) {
                         System.out.println("Bye byee :3\n");
                         dataInputStream.close();
@@ -78,6 +88,9 @@ public class ClientConnected extends Thread {
         }
     }
 
+    /**
+     * Reads messages from the server
+     */
     private void readServerMessages() {
         try {
             while (!socket.isInputShutdown()) {

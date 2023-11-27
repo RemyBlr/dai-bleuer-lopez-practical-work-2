@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -26,15 +25,23 @@ public class ClientHandler extends Thread {
     // Username of the client
     private String username;
 
+    // Gets the username of the client
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Constructor
+     * @param clientSocket socket for the client
+     */
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
 
     }
 
+    /**
+     * Run the client handler
+     */
     @Override
     public void run() {
         try {
@@ -53,6 +60,10 @@ public class ClientHandler extends Thread {
 
             ServerConnected.addConnectedUser(username, this);
 
+            // Message to the clients that a new client has connected
+            broadcastMessage("Client " + username + " connected.");
+
+            // Handle the client messages
             handleClientMessages(username);
 
         } catch (IOException e) {
@@ -98,16 +109,33 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Send a message to all the connected clients
+     * @param message message to send
+     * @throws IOException if IO error occurs
+     */
     private void broadcastMessage(String message) throws IOException {
         for (ClientHandler clientHandler : ServerConnected.getClientHandlers()) {
-            if (clientHandler != this) { // Avoid sending the msg to sender
+
+            // Don't send the message to the sender
+            if (clientHandler != this) {
                 clientHandler.dataOutputStream.writeUTF(message);
             }
         }
     }
 
-    private void sendDirectMessage(String targetUsername, String message) {
+    /**
+     * Send a direct message to a specific client
+     * @param targetUsername username of the target client
+     * @param message message to send
+     * @throws IOException if IO error occurs
+     */
+    private void sendDirectMessage(String targetUsername, String message) throws IOException {
+
+        // Get the client handler of the target user
         ClientHandler targetClient = ServerConnected.getConnectedUsers().get(targetUsername);
+
+        // If the target user is connected, send the message
         if (targetClient != null) {
             try {
                 targetClient.dataOutputStream.writeUTF(message);
@@ -116,9 +144,13 @@ public class ClientHandler extends Thread {
             }
         } else {
             System.out.println("User not found: " + targetUsername);
+            dataOutputStream.writeUTF("User not found: " + targetUsername);
         }
     }
 
+    /**
+     * Send the list of connected users to the client who requested it
+     */
     private void sendConnectedUsersList() {
         StringBuilder userListMessage = new StringBuilder("Connected users: ");
         for (String user : ServerConnected.getConnectedUsers().keySet()) {
@@ -126,6 +158,8 @@ public class ClientHandler extends Thread {
             //Don't include the sender in the list
             if (Objects.equals(user, username))
                 continue;
+
+            // Append the username to the message
             userListMessage.append(user).append(", ");
 
         }
@@ -144,11 +178,16 @@ public class ClientHandler extends Thread {
      */
     public void shutdownClient() {
         try {
+            // Remove the client from the list of connected users and the handlers
             ServerConnected.removeClientHandler(this);
             ServerConnected.removeConnectedUser(username);
+
+            // Close the streams and the socket
             dataInputStream.close();
             dataOutputStream.close();
             clientSocket.close();
+
+            // Interrupt the thread
             interrupt();
         } catch (IOException e) {
             throw new RuntimeException(e);
