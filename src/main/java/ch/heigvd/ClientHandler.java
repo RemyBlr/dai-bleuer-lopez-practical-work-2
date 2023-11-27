@@ -13,14 +13,17 @@ import java.util.Scanner;
  * Inputs and outputs for the server side
  */
 public class ClientHandler extends Thread {
-    private Socket clientSocket;
-    private InputStream inputStream;
-    private DataInputStream dataInputStream;
 
-    private OutputStream outputStream;
+    // Socket for the client
+    private final Socket clientSocket;
+
+    private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
+    // Scanner for the server
     private Scanner scanner;
+
+    // Username of the client
     private String username;
 
     public String getUsername() {
@@ -35,10 +38,12 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
-            inputStream = clientSocket.getInputStream();
+
+            // Input and output streams
+            InputStream inputStream = clientSocket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
 
-            outputStream = clientSocket.getOutputStream();
+            OutputStream outputStream = clientSocket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
 
             username = dataInputStream.readUTF();
@@ -71,6 +76,7 @@ public class ClientHandler extends Thread {
                     broadcastMessage("Client " + username + " disconnected.");
                     break;
                 } else if (message.startsWith("-dm ")) {
+
                     // Direct message format: -dm username message
                     String[] parts = message.split(" ", 3);
                     if (parts.length == 3) {

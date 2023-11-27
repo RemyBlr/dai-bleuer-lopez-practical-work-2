@@ -36,11 +36,17 @@ public class ServerConnected {
         while (true) {
             System.out.println("Server waiting for connection...");
             try {
+
+                // Wait for a client to connect
                 Socket clientSocket = serverSocket.accept();
+
+
                 System.out.println(
                         "Client connected on port " + clientSocket.getPort() +
                                 " and address " +
                                 clientSocket.getInetAddress());
+
+                // Create a new thread to handle the client
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clientHandlers.add(clientHandler);
                 clientHandler.start();
@@ -80,14 +86,27 @@ public class ServerConnected {
         clientHandlers.remove(clientHandler);
     }
 
+    /**
+     * Get the map of connected users
+     * @return the map of connected users
+     */
     public static Map<String, ClientHandler> getConnectedUsers() {
         return connectedUsers;
     }
 
+    /**
+     * Add a connected user to the map of connected users
+     * @param username the username of the user
+     * @param clientHandler the client handler of the user
+     */
     public static void addConnectedUser(String username, ClientHandler clientHandler) {
         connectedUsers.put(username, clientHandler);
     }
 
+    /**
+     * Remove a connected user from the map of connected users
+     * @param username the username of the user
+     */
     public static void removeConnectedUser(String username) {
         connectedUsers.remove(username);
     }
