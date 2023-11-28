@@ -2,6 +2,7 @@ package ch.heigvd;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
@@ -71,13 +72,20 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Read messages from the client
+     */
     private void handleClientMessages(String username) throws IOException {
+
+        // Get the current time
         String timeStamp = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
 
         try {
+
             while (true) {
                 String message = dataInputStream.readUTF();
 
+                // If the user wants to quit
                 if (message.equals("-q")) {
 
                     //Message to the server
@@ -86,7 +94,9 @@ public class ClientHandler extends Thread {
                     //Message to the clients
                     broadcastMessage("Client " + username + " disconnected.");
                     break;
-                } else if (message.startsWith("-dm ")) {
+                }
+                // If the user wants to send a direct message
+                else if (message.startsWith("-dm ")) {
 
                     // Direct message format: -dm username message
                     String[] parts = message.split(" ", 3);
